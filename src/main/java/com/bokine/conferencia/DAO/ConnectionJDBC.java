@@ -5,10 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.util.StringUtils;
+
 import com.bokine.conferencia.domain.Conferencia;
+import com.bokine.conferencia.domain.Produto;
 
 public class ConnectionJDBC {
 
@@ -46,14 +49,26 @@ public class ConnectionJDBC {
 		return null;
 	}
 	
-	public List<String> todasConferencias() {
-		String sql = "select nf.conferencia,nf.idnfe,idrecibo,nf.modelo,nf.data from nf "
-				+ " where nf.filial=11 and nf.SERIE<>1"
-				+ " and nf.modelo<>32 and nf.modelo=35 order by 1";
+	public List<Produto> todasConferencias() {
+		Conferencia conferencia = new Conferencia(1L);
+		List<Produto> produtos = new ArrayList<Produto>();
+		
+	
+		String sql = "select " + 
+				"p.DESCRICAO1, p.COD_PRODUTO, cp.COR, tp.TAMANHO from PEDIDO_VENDA pv " + 
+				"left join PRODUTO_PEDIDOV ppv on pv.PEDIDOV = ppv.PEDIDOV " + 
+				"left join PRODUTOS p on p.PRODUTO = ppv.PRODUTO " + 
+				"left join CLIENTES c on c.CLIENTE = pv.CLIENTE " + 
+				"left join COR_PROD cp on cp.PRODUTO =  p.PRODUTO " + 
+				"left join TAM_PROD tp on tp.PRODUTO = p.PRODUTO " + 
+				"where " + 
+				"ppv.SAIDA is null and " + 
+				"pv.DATA_ENTREGA = '29.11.2017' " + 
+				"and pv.LISTA_CASAMENTO='F' " + 
+				"and pv.CLIENTE<>31;";
 
 		String portNumber = "3050";
-		String url = "jdbc:firebirdsql:" + this.host + "/" + portNumber + ":" + this.database;
-		;
+		String url = "jdbc:firebirdsql:" + this.host + "/" + portNumber + ":" + this.database+"?charSet=ISO-8859-1";
 		String userName = this.user;
 		String passName = this.pass;
 
@@ -78,31 +93,54 @@ public class ConnectionJDBC {
 
 		try {
 			while (rs.next()) {
-				Conferencia conferencia = new Conferencia();
-
+				Produto p = new Produto();
+				String cor = "";
+				String codigo = "";
+				String tamanho = "";
 				try {
-					conferencia.setRomaneio(rs.getLong("romaneio"));
+					p.setNome(rs.getString("DESCRICAO1"));
 				} catch (Exception e) {
-					conferencia.setRomaneio(0L);
-					System.out.println("Erro ao capturar numero da conferencia");
+					System.out.println("Erro ao capturar nome da base firebird:\n"+ e);
 				}
-				
-				//conferenciasList.add(conferencia);
-
+				try {
+					codigo = rs.getString("COD_PRODUTO");
+				} catch (Exception e) {
+					System.out.println("Erro ao capturar codigo da base firebird:\n"+ e);
+				}
+				try {
+					cor = ajustaCor(rs.getString("COR"));
+				} catch (Exception e) {
+					System.out.println("Erro ao capturar cor da base firebird:\n"+ e);
+				}
+				try {
+					tamanho = rs.getString("TAMANHO");
+				} catch (Exception e) {
+					System.out.println("Erro ao capturar tamanho da base firebird:\n"+ e);
+				}
+				p.setCodigoDeBarras(codigo+cor+tamanho);
+				produtos.add(p);
 			}
 		} catch (Exception e) {
-			System.out.println("Erro ao buscar elemento: " + e);
+			System.out.println("Erro ao buscar produto da base firebird: " + e);
 		}
-//		ArrayList<conferencia> list = new ArrayList<conferencia>(conferenciasList);
-//		list.sort(new Comparador());
-//
-//		Map<String, conferencia> result1 = list.stream().sorted(new Comparador())
-//				.collect(Collectors.toMap(conferencia::getconferencia, n -> n, // key = name, value = websites
-//						(oldValue, newValue) -> oldValue, // if same key, take the old key
-//						LinkedHashMap::new // returns a LinkedHashMap, keep order
-//		));
+		conferencia.setProdutos(produtos);
+		return conferencia.getProdutos();
+	}
 
-		return Arrays.asList("000545","0897766","0974765","735459");
+	private String ajustaCor(String cor) {
+		String corAux = StringUtils.trimAllWhitespace(cor);
+		
+		if(corAux.length()==1)
+		return new StringBuilder()
+		        .append("").append(0).append(0).append(corAux).toString();
+		else
+			if(corAux.length()==2)
+				return new StringBuilder()
+				        .append("").append(0).append(corAux).toString();
+			else
+				if(corAux.length()>3)
+					return "2000000000";
+		return cor;
 	}
 
 

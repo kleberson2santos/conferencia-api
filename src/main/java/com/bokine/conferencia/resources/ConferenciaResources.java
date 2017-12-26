@@ -2,20 +2,22 @@ package com.bokine.conferencia.resources;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bokine.conferencia.DAO.ConferenciaDAO;
-import com.bokine.conferencia.domain.Conferencia;
+import com.bokine.conferencia.DAO.ConferenciaImplDAO;
+import com.bokine.conferencia.domain.Produto;
 
 @RestController
 public class ConferenciaResources {
 	
-	private ConferenciaDAO conferenciaDAO;
+	@Autowired
+	private ConferenciaImplDAO conferenciaDAO;
 	
 	@RequestMapping(value = "/conferencias", method=RequestMethod.GET)
-	public List<Conferencia> listar() {
+	public List<Produto> listar() {
 		
 		return conferenciaDAO.buscarTodos();
 	}

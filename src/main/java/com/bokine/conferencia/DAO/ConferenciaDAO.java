@@ -2,10 +2,10 @@ package com.bokine.conferencia.DAO;
 
 import java.util.List;
 
-import com.bokine.conferencia.domain.Conferencia;
+import com.bokine.conferencia.domain.Produto;
 
-public interface ConferenciaDAO {
+public interface ConferenciaDAO{
 
-	public abstract List<Conferencia> buscarTodos();
+	public abstract List<Produto> buscarTodos();
 
 }
