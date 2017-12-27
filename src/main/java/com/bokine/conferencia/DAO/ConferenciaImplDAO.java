@@ -8,8 +8,10 @@ import com.bokine.conferencia.domain.Produto;
 
 @Configuration
 public class ConferenciaImplDAO implements ConferenciaDAO {
+	//String database = "/home/kleber/Documentos/Repositorios_Java/uteis/Data Base Firebird/BKN00001.fdb";
+	String database = "C:/Sys/base/BKN00001";
 
-	ConnectionJDBC conncectionJDBC = new ConnectionJDBC("127.0.0.1", "/home/kleber/Documentos/Repositorios_Java/uteis/Data Base Firebird/BKN00001.fdb", "SYSDBA", "masterkey");
+	ConnectionJDBC conncectionJDBC = new ConnectionJDBC("127.0.0.1", database, "SYSDBA", "masterkey");
 
 	@Override
 	public List<Produto> buscarTodos() {
