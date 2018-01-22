@@ -54,18 +54,16 @@ public class ConnectionJDBC {
 		List<Produto> produtos = new ArrayList<Produto>();
 		
 	
-		String sql = "select " + 
-				"p.DESCRICAO1, p.COD_PRODUTO, cp.COR, tp.TAMANHO from PEDIDO_VENDA pv " + 
-				"left join PRODUTO_PEDIDOV ppv on pv.PEDIDOV = ppv.PEDIDOV " + 
-				"left join PRODUTOS p on p.PRODUTO = ppv.PRODUTO " + 
-				"left join CLIENTES c on c.CLIENTE = pv.CLIENTE " + 
+		String sql = "select p.DESCRICAO1, p.COD_PRODUTO, cp.COR, tp.TAMANHO " + 
+				"from movimento m " + 
+				"inner join produtos_eventos pe on m.cod_operacao=pe.cod_operacao " + 
+				"inner join pedido_venda pv on pv.pedidov=pe.pedido " + 
+				"inner join produtos p on p.produto=pe.produto " + 
 				"left join COR_PROD cp on cp.PRODUTO =  p.PRODUTO " + 
 				"left join TAM_PROD tp on tp.PRODUTO = p.PRODUTO " + 
-				"where " + 
-				"ppv.SAIDA is null and " + 
-				"pv.DATA_ENTREGA = '29.11.2017' " + 
-				"and pv.LISTA_CASAMENTO='F' " + 
-				"and pv.CLIENTE<>31;";
+				"where pv.data_entrega='29.11.2017'" + 
+				"and m.evento in (8,18,26,28,46,48,54,56,58,60,70,72,74,76,86,92,94,100)" + 
+				"order by 1";
 
 		String portNumber = "3050";
 		String url = "jdbc:firebirdsql:" + this.host + "/" + portNumber + ":" + this.database+"?charSet=ISO-8859-1";
